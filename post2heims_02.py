@@ -35,12 +35,10 @@ def GetArgumentParser():
 
 
 def del_duplicate_line(log_l, key_wd, key_point):
-    print(key_wd, "before len:", len(log_l))
     key_log = []
     for i, line in enumerate(log_l):
         if line.split(';')[key_point] == key_wd:
             key_log.append(line)
-    print(key_wd, "after len:", len(key_log))
     return key_log
 
 
@@ -52,7 +50,6 @@ def sort_model_log(log, key_wd):
             intel_log.append(line)
         else:
             private_log.append(line)
-#     print("intel model num:{}, private model num:{}".format(len(intel_log), len(private_log)))
     return intel_log, private_log
 
 
@@ -83,7 +80,6 @@ def main():
 
     res_dict = {}
     if args.log_path =="" or args.branch == "":
-#         print("pls input the log you want to post!\n e.g: python post2hemis.py -p log_path -b branch")
         exit(0)
     else:
         print(args.log_path)
@@ -92,49 +88,47 @@ def main():
 #         print("123",type(raw_readers[0]), raw_readers[0].split(',')[0])
 
         if raw_readers[0].split(',')[0] == 'Model':
-#             print("remove line 1")
             raw_readers.remove(raw_readers[0])
 
         for machine_tyep in ["CLX"]: #["SKX", "CLX"]:
             res_list = []
             model_list = []
+            model_list_trg = []
             a, b, c, d, = 0, 0, 0, 0
             key_log = del_duplicate_line(raw_readers, machine_tyep, 2)
             print('1 ----------------------------------------------------')
             print(key_log)
 
+            model_conter = 0
+            intel_model, private_model = sort_model_log(key_log, 'Intel')
+            # if len(machine_tyep) == 0:
+            #     continue
+            model_conter += 1
+            print('2 intel_model ------------------------------------------------')
+            print(intel_model)
+            print(len(intel_model))
+            print('3 private_model--------------------------------------------------')
+            print(private_model)
+            print(len(private_model))
 
-            for src in ['training','inference']:  #['inference', 'training']:
-                a +=1
-                src_log = del_duplicate_line(key_log, src, 1)
-                print('2 -------------------------------------------------')
-                print(src_log)
-                print("src log:", len(src_log))
-                if len(src_log) == 0:
-                    continue
+            for model_type in [intel_model, private_model]:
 
-                intel_model, private_model = sort_model_log(src_log, 'Intel')
-                print('3 ------------------------------------------------')
-                print(intel_model)
-                print('4--------------------------------------------------')
-                print(private_model)
-                print("intel model len:{}, private model len:{}".format(len(intel_model), len(private_model)))
-                model_conter = 0
-
-                for model_type in [intel_model, private_model]:
-
-                    if len(model_type) == 0:
+                for src in ['inference','training']:  #['inference', 'training']:
+                    a +=1
+                    src_log = del_duplicate_line(model_type, src, 1)
+                    if len(src_log) == 0:
                         continue
-                    model_conter += 1
-                    # print("!!!!!!!!!!!!!!!conter:", model_conter)
+                    print("4---------------------------------------")
+                    print(src_log)
+                    print(len(src_log))
 
-                    for line in model_type:
-                        model_list.append(line.split(';')[0].lower())
+                    for line in src_log:
+                        model_list.append(line.split(';')[0])
                     model_list = list(set(model_list))
-#                     print("model list:",model_list)
-                    print('5----------------------------------------------')
+                    print("51 model_list---------------------------------------")
                     print(model_list)
-                    
+                    print(len(model_list))
+
                     for m in model_list:
                         value_list = []
                         b += 1
@@ -152,7 +146,7 @@ def main():
                                 res_dict['source'] = 'Intel-Models'
                             else:
                                 res_dict['source'] = 'Private-Models'
-                            if m == line.split(';')[0].lower():
+                            if m == line.split(';')[0]:
                                 if line.split(';')[4] == 'Latency':
                                     have_lat =1
                                     data_type = line.split(';')[3]
