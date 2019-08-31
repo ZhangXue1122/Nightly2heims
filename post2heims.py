@@ -95,7 +95,7 @@ def main():
             print("remove line 1")
             raw_readers.remove(raw_readers[0])
 
-        for machine_tyep in ["SKX", "CLX"]: #["SKX", "CLX"]:
+        for machine_tyep in ["CLX"]: #["SKX", "CLX"]:
             res_list = []
             model_list = []
             a, b, c, d, = 0, 0, 0, 0
@@ -118,7 +118,7 @@ def main():
                     # print("!!!!!!!!!!!!!!!conter:", model_conter)
 
                     for line in model_type:
-                        model_list.append(line.split(';')[0].lower())
+                        model_list.append(line.split(';')[0])
                     model_list = list(set(model_list))
                     print("model list:",model_list)
 
@@ -140,7 +140,7 @@ def main():
                                 res_dict['source'] = 'Intel-Models'
                             else:
                                 res_dict['source'] = 'Private-Models'
-                            if m == line.split(';')[0].lower():
+                            if m == line.split(';')[0]:
                                 if line.split(';')[4] == 'Latency':
                                     have_lat =1
                                     data_type = line.split(';')[3]
